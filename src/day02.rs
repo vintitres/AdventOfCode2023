@@ -11,7 +11,7 @@ pub fn part1(input: &str) -> usize {
         .filter_map(|(i, line)| {
             if line.split(": ").nth(1).unwrap().split("; ").all(|pull| {
                 pull.split(", ")
-                    .all(|num_color| match num_color.split(" ").collect_tuple() {
+                    .all(|num_color| match num_color.split(' ').collect_tuple() {
                         Some((num, "red")) => num.parse::<usize>().unwrap() <= RED,
                         Some((num, "green")) => num.parse::<usize>().unwrap() <= GREEN,
                         Some((num, "blue")) => num.parse::<usize>().unwrap() <= BLUE,
@@ -39,7 +39,7 @@ pub fn part2(input: &str) -> u32 {
                 .split("; ")
                 .for_each(|pull| {
                     pull.split(", ").for_each(|num_color| {
-                        match num_color.split(" ").collect_tuple() {
+                        match num_color.split(' ').collect_tuple() {
                             Some((num, "red")) => {
                                 max_red = std::cmp::max(max_red, num.parse::<u32>().unwrap())
                             }

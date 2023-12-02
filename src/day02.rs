@@ -11,8 +11,7 @@ mod tests {
     use super::*;
 
     fn input() -> &'static str {
-        "input"
-        // include_str!("../input/2023/day01.txt")
+        include_str!("../input/2023/day2.txt")
     }
 
     #[ignore = "not implemented"]

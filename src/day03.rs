@@ -12,7 +12,7 @@ pub fn part1(input: &str) -> u64 {
                 .enumerate()
                 .scan((0, false), |(number, touched_symbol), (j, c)| {
                     let mut n = 0;
-                    if c.is_digit(10) {
+                    if c.is_ascii_digit() {
                         *number *= 10;
                         *number += c.to_digit(10).unwrap() as u64;
                         if !*touched_symbol {
@@ -21,13 +21,13 @@ pub fn part1(input: &str) -> u64 {
                                     (j.saturating_sub(1)..=min(j + 1, schem[ii].len() - 1)).any(
                                         |jj| {
                                             let c = schem[ii][jj];
-                                            !c.is_digit(10) && c != '.'
+                                            !c.is_ascii_digit() && c != '.'
                                         },
                                     )
                                 });
                         }
                     }
-                    if *number > 0 && (!c.is_digit(10) || j == schem[i].len() - 1) {
+                    if *number > 0 && (!c.is_ascii_digit() || j == schem[i].len() - 1) {
                         if *touched_symbol {
                             n = *number;
                         }

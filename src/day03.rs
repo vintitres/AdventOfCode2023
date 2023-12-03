@@ -3,6 +3,14 @@ use core::cmp::min;
 use itertools::Itertools;
 
 pub fn part1(input: &str) -> u64 {
+    struct State {
+        number: u64,
+        touched_symbol: bool,
+    }
+    const EMPTY_STATE: State = State {
+        number: 0,
+        touched_symbol: false,
+    };
     let schem = input.lines().map(|l| l.chars().collect_vec()).collect_vec();
     input
         .lines()
@@ -10,36 +18,29 @@ pub fn part1(input: &str) -> u64 {
         .map(|(i, l)| {
             l.chars()
                 .enumerate()
-                .scan((0, false), |(number, touched_symbol), (j, c)| {
-                    let mut n = 0;
+                .scan(EMPTY_STATE, |state, (j, c)| {
+                    let mut r = None;
                     if c.is_ascii_digit() {
-                        *number *= 10;
-                        *number += c.to_digit(10).unwrap() as u64;
-                        if !*touched_symbol {
-                            *touched_symbol = (i.saturating_sub(1)..=min(i + 1, schem.len() - 1))
-                                .any(|ii| {
+                        *state = State {
+                            number: state.number * 10 + c.to_digit(10).unwrap() as u64,
+                            touched_symbol: state.touched_symbol
+                                || (i.saturating_sub(1)..=min(i + 1, schem.len() - 1)).any(|ii| {
                                     (j.saturating_sub(1)..=min(j + 1, schem[ii].len() - 1)).any(
                                         |jj| {
                                             let c = schem[ii][jj];
                                             !c.is_ascii_digit() && c != '.'
                                         },
                                     )
-                                });
+                                }),
+                        };
+                    }
+                    if state.number > 0 && (!c.is_ascii_digit() || j == schem[i].len() - 1) {
+                        if state.touched_symbol {
+                            r = Some(state.number);
                         }
+                        *state = EMPTY_STATE;
                     }
-                    if *number > 0 && (!c.is_ascii_digit() || j == schem[i].len() - 1) {
-                        if *touched_symbol {
-                            n = *number;
-                        }
-                        dbg!(*touched_symbol, *number);
-                        *touched_symbol = false;
-                        *number = 0;
-                    }
-                    if n > 0 {
-                        Some(Some(n))
-                    } else {
-                        Some(None)
-                    }
+                    Some(r)
                 })
                 .flatten()
                 .sum::<u64>()

@@ -61,7 +61,7 @@ pub fn part2(input: &str) -> u64 {
                     if c.is_ascii_digit() {
                         *number *= 10;
                         *number += c.to_digit(10).unwrap() as u64;
-                        if *touched_star == None {
+                        if touched_star.is_none() {
                             *touched_star = (i.saturating_sub(1)..=min(i + 1, schem.len() - 1))
                                 .flat_map(|ii| {
                                     (j.saturating_sub(1)..=min(j + 1, schem[ii].len() - 1))
@@ -78,7 +78,7 @@ pub fn part2(input: &str) -> u64 {
                         }
                     }
                     if *number > 0 && (!c.is_ascii_digit() || j == schem[i].len() - 1) {
-                        if *touched_star != None {
+                        if touched_star.is_some() {
                             n = *number;
                             s = *touched_star;
                         }

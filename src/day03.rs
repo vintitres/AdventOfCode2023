@@ -10,8 +10,8 @@ pub fn part1(input: &str) -> u64 {
         .map(|(i, l)| {
             l.chars()
                 .enumerate()
-                .scan((0u64, false), |(number, touched_symbol), (j, c)| {
-                    let mut n: u64 = 0;
+                .scan((0, false), |(number, touched_symbol), (j, c)| {
+                    let mut n = 0;
                     if c.is_digit(10) {
                         *number *= 10;
                         *number += c.to_digit(10).unwrap() as u64;

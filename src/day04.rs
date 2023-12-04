@@ -10,12 +10,11 @@ fn read_cards(input: &str) -> Vec<usize> {
                 .nth(1)
                 .unwrap()
                 .split(" | ")
-                .map(|nums| {
-                    HashSet::<u64>::from_iter(nums.split_whitespace().map(|n| n.parse::<u64>().unwrap()))
-                })
+                .map(|nums| nums.split_whitespace().flat_map(|n| n.parse::<u64>()))
                 .collect_tuple()
                 .unwrap();
-            my.intersection(&win).count()
+            let win: HashSet<u64> = win.collect();
+            my.filter(|m| win.contains(m)).count()
         })
         .collect_vec()
 }

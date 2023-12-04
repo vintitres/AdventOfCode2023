@@ -44,14 +44,11 @@ pub fn part2(input: &str) -> usize {
         })
         .collect_vec();
     let mut card_count = 0;
-    let mut q = VecDeque::from_iter(0..cards.len());
-    while !q.is_empty() {
-        card_count += 1;
-        let card = q.pop_front().unwrap();
-        // dbg!(card);
+    let mut owned_cards = cards.iter().map(|_| 1).collect_vec();
+    for card in 0..owned_cards.len() {
+        card_count += owned_cards[card];
         for new_card in (card + 1)..(card + 1 + cards[card]) {
-            q.push_back(new_card);
-            // dbg!(new_card);
+            owned_cards[new_card] += owned_cards[card];
         }
     }
     card_count

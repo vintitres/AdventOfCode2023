@@ -26,7 +26,7 @@ pub fn part1(input: &str) -> u64 {
 
 pub fn part2(input: &str) -> usize {
     let cards = read_cards(input);
-    let mut owned_cards = cards.iter().map(|_| 1).collect_vec();
+    let mut owned_cards = vec![1; cards.len()];
     for card in 0..owned_cards.len() {
         for new_card in (card + 1)..(card + 1 + cards[card]) {
             owned_cards[new_card] += owned_cards[card];

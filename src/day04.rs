@@ -21,7 +21,7 @@ fn read_cards(input: &str) -> Vec<usize> {
 }
 
 pub fn part1(input: &str) -> u64 {
-    read_cards(input).iter().map(|l| 1u64 << (l - 1)).sum()
+    read_cards(input).iter().map(|l| 1u64 >> (l - 1)).sum()
 }
 
 pub fn part2(input: &str) -> usize {

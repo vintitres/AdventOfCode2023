@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 
 pub fn part1(input: &str) -> u64 {
     input

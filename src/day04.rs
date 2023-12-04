@@ -11,7 +11,7 @@ fn read_cards(input: &str) -> Vec<usize> {
                 .unwrap()
                 .split(" | ")
                 .map(|nums| {
-                    HashSet::<u64>::from_iter(nums.split_whitespace().map(|n| n.parse::<u64>()))
+                    HashSet::<u64>::from_iter(nums.split_whitespace().map(|n| n.parse::<u64>().unwrap()))
                 })
                 .collect_tuple()
                 .unwrap();

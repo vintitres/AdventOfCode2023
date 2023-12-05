@@ -154,8 +154,7 @@ pub fn part2(input: &str) -> u64 {
             dbg!(&specs);
             seeds = seeds
                 .iter()
-                .map(|seed| specs.intoout(seed))
-                .flatten()
+                .flat_map(|seed| specs.intoout(seed))
                 .filter(|s| s.start != s.end)
                 .collect_vec()
         });

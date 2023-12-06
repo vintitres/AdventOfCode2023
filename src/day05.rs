@@ -90,25 +90,26 @@ struct Range {
 
 pub fn part1(input: &str) -> u64 {
     let mut lines = input.lines();
-    let seeds: Box<dyn Iterator<Item = u64>> = Box::new(lines
-        .next()
-        .unwrap()
-        .split_whitespace()
-        .skip(1)
-        .map(|n| n.parse::<u64>().unwrap()));
+    let seeds: Box<dyn Iterator<Item = u64>> = Box::new(
+        lines
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .skip(1)
+            .map(|n| n.parse::<u64>().unwrap()),
+    );
     lines
         .group_by(|l| l.is_empty())
         .into_iter()
         .filter(|(empty_line, _)| !empty_line)
         .map(|(_, specs)| specs.skip(1).map(Spec::parse).collect_vec())
         .fold(seeds, move |things, specs| {
-            Box::new(things
-                .map(move |seed| {
-                    specs
-                        .iter()
-                        .find_map(|spec| spec.intoout(seed))
-                        .unwrap_or(seed)
-                }))
+            Box::new(things.map(move |seed| {
+                specs
+                    .iter()
+                    .find_map(|spec| spec.intoout(seed))
+                    .unwrap_or(seed)
+            }))
         })
         .min()
         .unwrap()
@@ -116,25 +117,20 @@ pub fn part1(input: &str) -> u64 {
 
 pub fn part2(input: &str) -> u64 {
     let mut lines = input.lines();
-    let seeds: Vec<u64> = lines
+    let seeds = lines
         .next()
         .unwrap()
         .split_whitespace()
         .skip(1)
         .map(|n| n.parse::<u64>().unwrap())
-        .collect_vec();
-    let mut seeds: Vec<Range> = seeds
-        .iter()
-        .chunks(2)
-        .into_iter()
-        .map(|c| {
-            let (s, l) = c.collect_tuple().unwrap();
-            Range {
-                start: *s,
-                end: *s + *l,
-            }
-        })
-        .collect_vec();
+        .chunks(2);
+    let seeds: Box<dyn Iterator<Item = Range>> = Box::new(seeds.into_iter().map(|c| {
+        let (s, l) = c.collect_tuple().unwrap();
+        Range {
+            start: s,
+            end: s + l,
+        }
+    }));
     lines
         .group_by(|l| l.is_empty())
         .into_iter()
@@ -146,17 +142,16 @@ pub fn part2(input: &str) -> u64 {
             specs.skip(1).for_each(|s| specs2.add(s));
             specs2
         })
-        .for_each(|specs| {
-            dbg!(&seeds);
-            dbg!(&specs);
-            seeds = seeds
-                .iter()
-                .flat_map(|seed| specs.intoout(seed))
-                .filter(|s| s.start != s.end)
-                .collect_vec()
-        });
-    dbg!(&seeds);
-    seeds.iter().map(|s| s.start).min().unwrap()
+        .fold(seeds, |things, specs| {
+            Box::new(
+                things
+                    .flat_map(move |seed| specs.intoout(&seed))
+                    .filter(|s| s.start != s.end),
+            )
+        })
+        .map(|s| s.start)
+        .min()
+        .unwrap()
 }
 
 #[cfg(test)]

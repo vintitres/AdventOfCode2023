@@ -35,25 +35,39 @@ pub fn part1(input: &str) -> u64 {
         .collect_tuple()
         .unwrap();
     time.zip(distance)
-        .map(|(race_time, record_distance)| {
-            let mut b = 0;
-            let mut e = race_time / 2;
-            while b < e {
-                let m = b + (e - b) / 2;
-                let d = m * (race_time - m);
-                if d <= record_distance {
-                    b = m + 1;
-                } else {
-                    e = m;
-                }
-            }
-            ((race_time / 2) - b) * 2 + 1 + race_time % 2
-        })
+        .map(|(time, distance)| ways_to_win(time, distance))
         .product()
 }
 
-pub fn part2(input: &str) -> usize {
-    input.len()
+fn ways_to_win(race_time: u64, record_distance: u64) -> u64 {
+    let mut b = 0;
+    let mut e = race_time / 2;
+    while b < e {
+        let m = b + (e - b) / 2;
+        let d = m * (race_time - m);
+        if d <= record_distance {
+            b = m + 1;
+        } else {
+            e = m;
+        }
+    }
+    ((race_time / 2) - b) * 2 + 1 + race_time % 2
+}
+
+pub fn part2(input: &str) -> u64 {
+    let (time, distance) = input
+        .lines()
+        .map(|l| {
+            l.split_once(':')
+                .unwrap()
+                .1
+                .replace(' ', "")
+                .parse::<u64>()
+                .unwrap()
+        })
+        .collect_tuple()
+        .unwrap();
+    ways_to_win(time, distance)
 }
 
 #[cfg(test)]

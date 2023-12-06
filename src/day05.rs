@@ -31,6 +31,33 @@ impl Spec {
     }
 }
 
+pub fn part1(input: &str) -> u64 {
+    let mut lines = input.lines();
+    let seeds: Box<dyn Iterator<Item = u64>> = Box::new(
+        lines
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .skip(1)
+            .map(|n| n.parse::<u64>().unwrap()),
+    );
+    lines
+        .group_by(|l| l.is_empty())
+        .into_iter()
+        .filter(|(empty_line, _)| !empty_line)
+        .map(|(_, specs)| specs.skip(1).map(Spec::parse).collect_vec())
+        .fold(seeds, move |things, specs| {
+            Box::new(things.map(move |seed| {
+                specs
+                    .iter()
+                    .find_map(|spec| spec.intoout(seed))
+                    .unwrap_or(seed)
+            }))
+        })
+        .min()
+        .unwrap()
+}
+
 #[derive(Debug)]
 struct Spec2 {
     specs: BTreeMap<u64, i64>, // <range_start, range_shift>
@@ -87,34 +114,6 @@ struct Range {
     start: u64,
     end: u64, // exclusive
 }
-
-pub fn part1(input: &str) -> u64 {
-    let mut lines = input.lines();
-    let seeds: Box<dyn Iterator<Item = u64>> = Box::new(
-        lines
-            .next()
-            .unwrap()
-            .split_whitespace()
-            .skip(1)
-            .map(|n| n.parse::<u64>().unwrap()),
-    );
-    lines
-        .group_by(|l| l.is_empty())
-        .into_iter()
-        .filter(|(empty_line, _)| !empty_line)
-        .map(|(_, specs)| specs.skip(1).map(Spec::parse).collect_vec())
-        .fold(seeds, move |things, specs| {
-            Box::new(things.map(move |seed| {
-                specs
-                    .iter()
-                    .find_map(|spec| spec.intoout(seed))
-                    .unwrap_or(seed)
-            }))
-        })
-        .min()
-        .unwrap()
-}
-
 pub fn part2(input: &str) -> u64 {
     let mut lines = input.lines();
     let seeds = lines

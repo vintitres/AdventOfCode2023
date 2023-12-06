@@ -90,21 +90,21 @@ struct Range {
 
 pub fn part1(input: &str) -> u64 {
     let mut lines = input.lines();
-    let mut seeds: Vec<u64> = lines
+    let seeds = lines
         .next()
         .unwrap()
         .split_whitespace()
         .skip(1)
         .map(|n| n.parse::<u64>().unwrap())
         .collect_vec();
-    lines
+    *lines
         .group_by(|l| l.is_empty())
         .into_iter()
         .filter(|(empty_line, _)| !empty_line)
         .map(|(_, specs)| specs.skip(1).map(Spec::parse).collect_vec())
-        .for_each(|specs| {
+        .fold(seeds.clone(), move |things, specs| {
             dbg!(&seeds);
-            seeds = seeds
+            things
                 .iter()
                 .map(|seed| {
                     specs
@@ -113,8 +113,10 @@ pub fn part1(input: &str) -> u64 {
                         .unwrap_or(*seed)
                 })
                 .collect_vec()
-        });
-    *seeds.iter().min().unwrap()
+        })
+        .iter()
+        .min()
+        .unwrap()
 }
 
 pub fn part2(input: &str) -> u64 {

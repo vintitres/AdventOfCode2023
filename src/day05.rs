@@ -90,31 +90,26 @@ struct Range {
 
 pub fn part1(input: &str) -> u64 {
     let mut lines = input.lines();
-    let seeds = lines
+    let seeds: Box<dyn Iterator<Item = u64>> = Box::new(lines
         .next()
         .unwrap()
         .split_whitespace()
         .skip(1)
-        .map(|n| n.parse::<u64>().unwrap())
-        .collect_vec();
-    *lines
+        .map(|n| n.parse::<u64>().unwrap()));
+    lines
         .group_by(|l| l.is_empty())
         .into_iter()
         .filter(|(empty_line, _)| !empty_line)
         .map(|(_, specs)| specs.skip(1).map(Spec::parse).collect_vec())
-        .fold(seeds.clone(), move |things, specs| {
-            dbg!(&seeds);
-            things
-                .iter()
-                .map(|seed| {
+        .fold(seeds, move |things, specs| {
+            Box::new(things
+                .map(move |seed| {
                     specs
                         .iter()
-                        .find_map(|spec| spec.intoout(*seed))
-                        .unwrap_or(*seed)
-                })
-                .collect_vec()
+                        .find_map(|spec| spec.intoout(seed))
+                        .unwrap_or(seed)
+                }))
         })
-        .iter()
         .min()
         .unwrap()
 }

@@ -42,11 +42,69 @@ pub fn part1(input: &str) -> usize {
         .count()
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug,Clone)]
 struct Cycle {
     start: u64,
     len: u64,
     zs: Vec<u64>,
+}
+
+/*
+Code for finding shifted lowest common multiply translated from python from
+https://math.stackexchange.com/questions/2218763/how-to-find-lcm-of-two-numbers-when-one-starts-with-an-offset
+answer by Eric Langlois
+*/
+fn combine_phased_rotations(a_period: i64, a_phase: i64, b_period: i64, b_phase: i64) -> (i64, i64) {
+    /*mbine two phased rotations into a single phased rotation
+
+    Returns: combined_period, combined_phase
+
+    The combined rotation is at its reference point if and only if both a and b
+    are at their reference points.
+    */
+    let (gcd, s, t) = extended_gcd(a_period, b_period);
+    let phase_difference = a_phase - b_phase;
+    let (pd_mult, pd_remainder) = divmod(phase_difference, gcd);
+    if pd_remainder > 0 {
+        panic!("Rotation reference points never synchronize.");
+    }
+    let combined_period = a_period / gcd * b_period;
+    let combined_phase = (a_phase - s * pd_mult * a_period) % combined_period;
+    (combined_period, combined_phase)
+}
+
+fn divmod(a: i64, b: i64) -> (i64, i64) {
+    (a / b, a % b)
+}
+
+fn align(c1: &Cycle, c2: &Cycle) -> Cycle {
+    assert_eq!(c1.zs.len(), 1);
+    assert_eq!(c2.zs.len(), 1);
+    let (period, phase) = combine_phased_rotations(c1.len as i64, (c1.start + c1.zs.first().unwrap()) as i64, c2.len as i64, (c2.start + c2.zs.first().unwrap()) as i64);
+    Cycle { start: phase as u64, len: period as u64, zs: vec![0] }
+}
+
+
+fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
+    /*Extended Greatest Common Divisor Algorithm
+
+    Returns:
+        gcd: The greatest common divisor of a and b.
+        s, t: Coefficients such that s*a + t*b = gcd
+
+    Reference:
+        https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Pseudocode
+    */
+    let mut rr = (a, b);
+    let mut ss = (1, 0);
+    let mut tt = (0, 1);
+    while rr.1 > 0 {
+        let (quotient, remainder) = divmod(rr.0, rr.1);
+        rr = (rr.1, remainder);
+        ss = (ss.1, ss.0 - quotient * ss.1);
+        tt = (tt.1, tt.0 - quotient * tt.1);
+    }
+    (rr.0, ss.0, tt.0)
 }
 
 pub fn part2(input: &str) -> u64 {
@@ -94,7 +152,15 @@ pub fn part2(input: &str) -> u64 {
             }
         })
         .collect_vec();
-    // dbg!(&cycles);
+    dbg!(&cycles);
+    let mut c : Cycle = cycles.first().unwrap().clone();
+    for cc in cycles.iter().skip(1) {
+        c = align(&c, cc);
+    }
+    dbg!(&c);
+    c.len
+
+    /* 
     let mut pq: BTreeSet<(u64, usize)> = BTreeSet::new();
     let mut ghost_positions: Vec<u64> = Vec::new();
     cycles.iter().enumerate().for_each(|(i, c)| {
@@ -113,7 +179,7 @@ pub fn part2(input: &str) -> u64 {
         }
         let ghost = &cycles[ghost_i];
         pq.insert((ghost_pos + ghost.len, ghost_i));
-    }
+   }*/
 }
 
 #[cfg(test)]
@@ -129,9 +195,8 @@ mod tests {
         assert_eq!(part1(input()), 15517);
     }
 
-    #[ignore = "not implemented"]
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 22);
+        assert_eq!(part2(input()), 14935034899483);
     }
 }

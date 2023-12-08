@@ -84,7 +84,7 @@ pub fn part2(input: &str) -> u64 {
             let cycle_start = visited.get(&(rli, *node)).unwrap();
             Cycle {
                 start: *cycle_start,
-                len: i as u64 - *cycle_start,
+                len: i - *cycle_start,
                 // NOTE only care about Zs after cycle start because assuming it will be a lot of steps
                 zs: zs
                     .iter()
@@ -98,7 +98,7 @@ pub fn part2(input: &str) -> u64 {
     let mut pq: BTreeSet<(u64, usize)> = BTreeSet::new();
     let mut ghost_positions: Vec<u64> = Vec::new();
     cycles.iter().enumerate().for_each(|(i, c)| {
-        let first_z_on_cycle = c.start + c.zs.get(0).unwrap();
+        let first_z_on_cycle = c.start + c.zs.first().unwrap();
         ghost_positions.push(first_z_on_cycle);
         c.zs.iter().for_each(|z| {
             pq.insert((c.start + z, i));

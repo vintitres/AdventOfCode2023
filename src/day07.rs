@@ -12,7 +12,7 @@ impl Hand {
     fn parse(hand: &str, jokers: bool) -> Hand {
         let mut handmap: BTreeMap<char, usize> = BTreeMap::new();
         for c in hand.chars() {
-            handmap.entry(c).and_modify(|v| *v = *v + 1).or_insert(1);
+            handmap.entry(c).and_modify(|v| *v += 1).or_insert(1);
         }
         let jokers_count = if jokers {
             handmap.remove(&'J').unwrap_or(0)

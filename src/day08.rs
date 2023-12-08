@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{HashMap};
 
 fn read(input: &str) -> (&str, HashMap<&str, (&str, &str)>) {
     let mut lines = input.lines();
@@ -67,7 +67,7 @@ fn combine_phased_rotations(
     The combined rotation is at its reference point if and only if both a and b
     are at their reference points.
     */
-    let (gcd, s, t) = extended_gcd(a_period, b_period);
+    let (gcd, s, _t) = extended_gcd(a_period, b_period);
     let phase_difference = a_phase - b_phase;
     let (pd_mult, pd_remainder) = divmod(phase_difference, gcd);
     if pd_remainder > 0 {

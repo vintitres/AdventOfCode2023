@@ -14,40 +14,49 @@ impl Hand {
         for c in hand.chars() {
             handmap.entry(c).and_modify(|v| *v = *v + 1).or_insert(1);
         }
-        let type_ = 
-        if *handmap.iter().next().unwrap().1 == 5 {  // five of kind
+        let type_ = if *handmap.iter().next().unwrap().1 == 5 {
+            // five of kind
             0
-        } else if handmap.iter().any(|(_, &c)| c == 4) {  // four of kind
+        } else if handmap.iter().any(|(_, &c)| c == 4) {
+            // four of kind
             1
         } else if handmap.iter().any(|(_, &c)| c == 3) {
-            if handmap.iter().any(|(_, &c)| c == 2) {  // full house
+            if handmap.iter().any(|(_, &c)| c == 2) {
+                // full house
                 2
-            } else {  // three of a kind
+            } else {
+                // three of a kind
                 3
             }
-        } else if handmap.iter().filter(|(_, &c)| c == 2).count() == 2 {  // two pair
+        } else if handmap.iter().filter(|(_, &c)| c == 2).count() == 2 {
+            // two pair
             4
-        } else if handmap.iter().any(|(_, &c)| c == 2) {  // pair
+        } else if handmap.iter().any(|(_, &c)| c == 2) {
+            // pair
             5
-        } else {  // high card
+        } else {
+            // high card
             6
         };
-        let val = hand.chars().map(|c| match c {
-            'A' => 0,
-            'K' => 1,
-            'Q' => 2,
-            'J' => 3,
-            'T' => 4,
-            '9' => 5,
-            '8' => 6,
-            '7' => 7,
-            '6' => 8,
-            '5' => 9,
-            '4' => 10,
-            '3' => 11,
-            '2' => 12,
-            _ => unimplemented!(),
-        }).fold(0, |acc, n| acc * 13 + n);
+        let val = hand
+            .chars()
+            .map(|c| match c {
+                'A' => 0,
+                'K' => 1,
+                'Q' => 2,
+                'J' => 3,
+                'T' => 4,
+                '9' => 5,
+                '8' => 6,
+                '7' => 7,
+                '6' => 8,
+                '5' => 9,
+                '4' => 10,
+                '3' => 11,
+                '2' => 12,
+                _ => unimplemented!(),
+            })
+            .fold(0, |acc, n| acc * 13 + n);
         Hand { type_, val }
     }
 }
@@ -68,7 +77,10 @@ pub fn part1(input: &str) -> u64 {
         .rev()
         .enumerate()
         .map(|(rank, (_hand, bet))| (rank as u64 + 1) * bet)
-        .map(|v| {dbg!(v); v })
+        .map(|v| {
+            dbg!(v);
+            v
+        })
         .sum()
 }
 

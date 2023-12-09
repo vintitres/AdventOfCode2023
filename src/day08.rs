@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 fn read(input: &str) -> (&str, HashMap<&str, (&str, &str)>) {
     let mut lines = input.lines();
@@ -122,11 +122,11 @@ fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
 
 pub fn part2(input: &str) -> u64 {
     let (rl, map) = read(input);
-    let mut visited: HashMap<(usize, &str), u64> = HashMap::new();
     let cycles = map
         .iter()
         .filter(|(k, _)| k.ends_with('A'))
         .map(|(k, _)| {
+            let mut visited: HashMap<(usize, &str), u64> = HashMap::new();
             let mut i = 0u64;
             let mut node = k;
             let mut zs = Vec::new();
@@ -135,11 +135,13 @@ pub fn part2(input: &str) -> u64 {
                     zs.push(i);
                 }
                 let rli = (i % (rl.len() as u64)) as usize;
+                if node.starts_with("22") {
+                    dbg!(&visited);
+                }
                 if visited.contains_key(&(rli, *node)) {
                     break;
                 }
                 visited.insert((rli, node), i);
-                // dbg!(&visited);
                 match rl.chars().nth(rli).unwrap() {
                     'R' => {
                         node = &map[node].1;

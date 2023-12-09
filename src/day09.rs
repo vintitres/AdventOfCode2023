@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-fn find_next(seq: &Vec<i64>) -> i64 {
+fn find_next(seq: &[i64]) -> i64 {
     if seq.iter().all(|&n| n == 0) {
         0
     } else {
@@ -31,7 +31,7 @@ pub fn part1(input: &str) -> i64 {
         .sum()
 }
 
-fn find_prev(seq: &Vec<i64>) -> i64 {
+fn find_prev(seq: &[i64]) -> i64 {
     if seq.iter().all(|&n| n == 0) {
         0
     } else {

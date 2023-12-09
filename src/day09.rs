@@ -1,5 +1,34 @@
-pub fn part1(input: &str) -> usize {
-    input.len()
+use itertools::Itertools;
+
+fn find_next(seq: &Vec<i64>) -> i64 {
+    if seq.iter().all(|&n| n == 0) {
+        0
+    } else {
+        seq.last().unwrap()
+            + find_next(
+                &seq.iter()
+                    .skip(1)
+                    .scan(seq.first().unwrap(), |last, n| {
+                        let ret = Some(n - *last);
+                        *last = n;
+                        ret
+                    })
+                    .collect_vec(),
+            )
+    }
+}
+
+pub fn part1(input: &str) -> i64 {
+    input
+        .lines()
+        .map(|l| {
+            find_next(
+                &l.split_whitespace()
+                    .map(|n| n.parse::<i64>().unwrap())
+                    .collect_vec(),
+            )
+        })
+        .sum()
 }
 
 pub fn part2(input: &str) -> usize {
@@ -11,14 +40,12 @@ mod tests {
     use super::*;
 
     fn input() -> &'static str {
-        "input"
-        // include_str!("../input/2023/day01.txt")
+        include_str!("../input/2023/day9.txt")
     }
 
-    #[ignore = "not implemented"]
     #[test]
     fn test_part1() {
-        assert_eq!(part1(input()), 11);
+        assert_eq!(part1(input()), 1974232246);
     }
 
     #[ignore = "not implemented"]

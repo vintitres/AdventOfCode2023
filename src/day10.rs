@@ -67,6 +67,7 @@ fn doit(input: &str) -> (usize, usize) {
         });
     }
 
+    /*
     for (i, _) in pipes.iter().enumerate() {
         for (j, _) in pipes[i].iter().enumerate() {
             print!(
@@ -79,6 +80,7 @@ fn doit(input: &str) -> (usize, usize) {
         }
         println!();
     }
+    */
     let mut q = VecDeque::new();
     let mut vis2 = HashSet::new();
     q.push_back((0, 0));
@@ -121,23 +123,18 @@ fn doit(input: &str) -> (usize, usize) {
     let mut inner = 0;
     for (i, _) in pipes.iter().enumerate() {
         for (j, _) in pipes[i].iter().enumerate() {
-            print!(
-                "{}",
-                match vis.get(&(i, j)) {
-                    Some(_n) => "#".to_string(),
-                    None =>
-                        if ((i * 3)..((i + 1) * 3))
-                            .any(|i| ((j * 3)..((j + 1) * 3)).any(|j| vis2.contains(&(i, j))))
-                        {
-                            ".".to_string()
-                        } else {
-                            inner += 1;
-                            "I".to_string()
-                        },
+            match vis.get(&(i, j)) {
+                Some(_n) => (),
+                None => {
+                    if ((i * 3)..((i + 1) * 3))
+                        .any(|i| ((j * 3)..((j + 1) * 3)).any(|j| vis2.contains(&(i, j))))
+                    {
+                    } else {
+                        inner += 1
+                    }
                 }
-            );
+            }
         }
-        println!();
     }
     (maxd, inner)
     /*
@@ -179,6 +176,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 23);
+        assert_eq!(part2(input()), 407);
     }
 }

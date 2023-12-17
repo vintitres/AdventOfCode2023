@@ -24,15 +24,12 @@ pub fn part1(input: &str) -> usize {
     let s = pipes
         .iter()
         .enumerate()
-        .find_map(|(i, ref pp)| match pp.iter().position(|&p| p == 'S') {
-            Some(p) => Some((i, p)),
-            None => None,
-        })
+        .find_map(|(i, pp)| pp.iter().position(|&p| p == 'S').map(|p| (i, p)))
         .unwrap();
     let mut q = VecDeque::new();
     let mut vis = HashMap::new();
     vis.insert(s, 0);
-    vec!['N', 'S'] //, 'E', 'W']  // input
+    ['N', 'S'] //, 'E', 'W']  // input
         .iter()
         .enumerate()
         .for_each(|(i, &d)| {
@@ -58,9 +55,9 @@ pub fn part1(input: &str) -> usize {
         .iter()
         .map(|&d| mv(p, d))
         .for_each(|p| {
-            if !vis.contains_key(&p) {
+            if let std::collections::hash_map::Entry::Vacant(e) = vis.entry(p) {
                 q.push_back((dis + 1, p, n));
-                vis.insert(p, n);
+                e.insert(n);
             } else {
                 let vp = vis[&p];
                 if vp != 0 && vp != n {
@@ -79,7 +76,7 @@ pub fn part1(input: &str) -> usize {
                 }
             );
         }
-        println!("");
+        println!();
     }
     maxd
 }

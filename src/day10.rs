@@ -25,9 +25,9 @@ pub fn part1(input: &str) -> usize {
         .iter()
         .enumerate()
         .find_map(|(i, ref pp)| match pp.iter().position(|&p| p == 'S') {
-            Some(p) => Some((i,p)),
+            Some(p) => Some((i, p)),
             None => None,
-        } )
+        })
         .unwrap();
     let mut q = VecDeque::new();
     let mut vis = HashMap::new();
@@ -71,7 +71,13 @@ pub fn part1(input: &str) -> usize {
     }
     for i in 0..pipes.len() {
         for j in 0..pipes[i].len() {
-            print!("{}", match vis.get(&(i,j)) {Some(n) => n.to_string(), None => ".".to_string()});
+            print!(
+                "{}",
+                match vis.get(&(i, j)) {
+                    Some(n) => n.to_string(),
+                    None => ".".to_string(),
+                }
+            );
         }
         println!("");
     }

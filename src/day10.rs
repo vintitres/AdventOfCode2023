@@ -66,8 +66,8 @@ pub fn part1(input: &str) -> usize {
             }
         });
     }
-    for i in 0..pipes.len() {
-        for j in 0..pipes[i].len() {
+    for (i, _) in pipes.iter().enumerate() {
+        for (j, _) in pipes[i].iter().enumerate() {
             print!(
                 "{}",
                 match vis.get(&(i, j)) {

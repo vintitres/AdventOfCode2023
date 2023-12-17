@@ -54,13 +54,14 @@ pub fn part1(input: &str) -> usize {
         }
         .iter()
         .map(|&d| mv(p, d))
-        .for_each(|p| {
-            if let std::collections::hash_map::Entry::Vacant(e) = vis.entry(p) {
+        .for_each(|p| match vis.entry(p) {
+            std::collections::hash_map::Entry::Vacant(e) => {
                 q.push_back((dis + 1, p, n));
                 e.insert(n);
-            } else {
-                let vp = vis[&p];
-                if vp != 0 && vp != n {
+            }
+            std::collections::hash_map::Entry::Occupied(e) => {
+                let v = *e.get();
+                if v != 0 && v != n {
                     maxd = dis;
                 }
             }

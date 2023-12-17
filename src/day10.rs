@@ -1,8 +1,5 @@
 use itertools::Itertools;
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    iter,
-};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 fn mv((px, py): (usize, usize), d: char) -> (usize, usize) {
     match d {
@@ -92,25 +89,24 @@ fn doit(input: &str) -> (usize, usize) {
             .iter()
             .map(|&d| mv(p, d))
             .for_each(|p| {
-                if !vis2.contains(&p) {
-                    if p.0 < pipes.len() * 3 && p.1 < pipes[p.0 / 3].len() * 3 {
-                        if !vis.contains_key(&(p.0 / 3, p.1 / 3))
-                            || !match pipes[p.0 / 3][p.1 / 3] {
-                                '|' | 'S' => [(0, 1), (1, 1), (2, 1)],
-                                '-' => [(1, 0), (1, 1), (1, 2)],
-                                'L' => [(0, 1), (1, 1), (1, 2)],
-                                '7' => [(1, 0), (1, 1), (2, 1)],
-                                'F' => [(2, 1), (1, 1), (1, 2)],
-                                'J' => [(1, 0), (1, 1), (0, 1)],
-                                _ => panic!("unknown"),
-                            }
-                            .iter()
-                            .any(|&xy| xy == (p.0 % 3, p.1 % 3))
-                        {
-                            q.push_back(p);
-                            vis2.insert(p);
+                if !vis2.contains(&p)
+                    && p.0 < pipes.len() * 3
+                    && p.1 < pipes[p.0 / 3].len() * 3
+                    && (!vis.contains_key(&(p.0 / 3, p.1 / 3))
+                        || !match pipes[p.0 / 3][p.1 / 3] {
+                            '|' | 'S' => [(0, 1), (1, 1), (2, 1)],
+                            '-' => [(1, 0), (1, 1), (1, 2)],
+                            'L' => [(0, 1), (1, 1), (1, 2)],
+                            '7' => [(1, 0), (1, 1), (2, 1)],
+                            'F' => [(2, 1), (1, 1), (1, 2)],
+                            'J' => [(1, 0), (1, 1), (0, 1)],
+                            _ => panic!("unknown"),
                         }
-                    }
+                        .iter()
+                        .any(|&xy| xy == (p.0 % 3, p.1 % 3)))
+                {
+                    q.push_back(p);
+                    vis2.insert(p);
                 }
             });
     }
@@ -128,7 +124,7 @@ fn doit(input: &str) -> (usize, usize) {
             print!(
                 "{}",
                 match vis.get(&(i, j)) {
-                    Some(n) => "#".to_string(),
+                    Some(_n) => "#".to_string(),
                     None =>
                         if ((i * 3)..((i + 1) * 3))
                             .any(|i| ((j * 3)..((j + 1) * 3)).any(|j| vis2.contains(&(i, j))))

@@ -62,7 +62,7 @@ impl Dig {
         let (length_hex, direction_index) = c
             .strip_prefix("(#")
             .unwrap()
-            .strip_suffix(")")
+            .strip_suffix(')')
             .unwrap()
             .split_at(5);
         Self {

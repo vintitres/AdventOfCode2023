@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::{BTreeSet, HashSet, VecDeque};
 
 use itertools::Itertools;
 
@@ -151,12 +151,47 @@ pub fn part1(input: &str) -> usize {
     bounds.size() - ground.len()
 }
 
-pub fn part2(input: &str) -> usize {
-    let mut p = (0, 0);
-    for dig in input.lines().map(Dig::parse2) {
-        p = dig.direction.jump(p, dig.length);
-        dbg!(&dig, p);
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct SideWall {
+    top_x: i32,
+    y: i32,
+    bottom_x: i32,
+}
+
+impl SideWall {
+    pub fn from((x, y): (i32, i32), direction: &Direction, length: usize) -> Option<Self> {
+        match direction {
+            Direction::Down => Some(Self {
+                top_x: x,
+                bottom_x: x + length as i32,
+                y: y,
+            }),
+            Direction::Up => Some(Self {
+                top_x: x - length as i32,
+                y: y,
+                bottom_x: x,
+            }),
+            _ => None,
+        }
     }
+}
+
+pub fn part2(input: &str) -> usize {
+    /* TODO
+     * (below algo only works if no hooks sticking out of the hole on the sides)
+     * Go clockwise around the hole and each time you go down add to set of left wall x ranges,
+     * each time you go up add the covered area on the right of up path and clear blocked part from walls set
+     * + ensure start from leftmost y on top x
+     * */
+    let mut p = (0, 0);
+    let mut walls = BTreeSet::new();
+    for dig in input.lines().map(Dig::parse2) {
+        if let Some(wall) = SideWall::from(p, &dig.direction, dig.length) {
+            walls.insert(wall);
+        }
+        p = dig.direction.jump(p, dig.length);
+    }
+    dbg!(walls);
     0
 }
 

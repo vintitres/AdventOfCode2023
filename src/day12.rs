@@ -20,7 +20,7 @@ impl HotSpringRow {
                 .row
                 .clone()
                 .into_iter()
-                .chain(['?'].into_iter())
+                .chain(['?'])
                 .cycle()
                 .take((self.row.len() + 1) * 5 - 1)
                 .collect_vec(),

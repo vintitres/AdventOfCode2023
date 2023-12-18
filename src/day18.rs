@@ -164,11 +164,11 @@ impl SideWall {
             Direction::Down => Some(Self {
                 top_x: x,
                 bottom_x: x + length as i32,
-                y: y,
+                y,
             }),
             Direction::Up => Some(Self {
                 top_x: x - length as i32,
-                y: y,
+                y,
                 bottom_x: x,
             }),
             _ => None,

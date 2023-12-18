@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, mem::swap};
+use std::{collections::BTreeMap};
 
 use itertools::Itertools;
 
@@ -51,7 +51,7 @@ fn dist(
     exp_y: &BTreeMap<usize, usize>,
     mul: u64,
 ) -> u64 {
-    dist_(g1.0, g2.0, &exp_x, mul) + dist_(g1.1, g2.1, &exp_y, mul)
+    dist_(g1.0, g2.0, exp_x, mul) + dist_(g1.1, g2.1, exp_y, mul)
 }
 
 fn doit(input: &str, mul: u64) -> u64 {
@@ -91,8 +91,8 @@ fn doit(input: &str, mul: u64) -> u64 {
                 .enumerate()
                 .skip(gi + 1)
                 .map(|(_gj, g2)| {
-                    let d = dist(g1, g2, &exp_x, &exp_y, mul); /*dbg!((gi + 1, gj + 1, d));*/
-                    d
+                     /*dbg!((gi + 1, gj + 1, d));*/
+                    dist(g1, g2, &exp_x, &exp_y, mul)
                 })
                 .sum::<u64>()
         })

@@ -14,6 +14,26 @@ impl HotSpringRow {
         }
     }
 
+    pub fn unfold(&self) -> Self {
+        Self {
+            row: self
+                .row
+                .clone()
+                .into_iter()
+                .chain(['?'].into_iter())
+                .cycle()
+                .take((self.row.len() + 1) * 5 - 1)
+                .collect_vec(),
+            conditions: self
+                .conditions
+                .clone()
+                .into_iter()
+                .cycle()
+                .take(self.conditions.len() * 5)
+                .collect_vec(),
+        }
+    }
+
     pub fn combinations(&self) -> usize {
         Self::combinations_(self.row.split_first(), &self.conditions, 0)
     }
@@ -61,7 +81,11 @@ pub fn part1(input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> usize {
-    input.len()
+    input
+        .lines()
+        .map(HotSpringRow::parse)
+        .map(|hsr| hsr.unfold().combinations())
+        .sum()
 }
 
 #[cfg(test)]
@@ -77,7 +101,7 @@ mod tests {
         assert_eq!(part1(input()), 8022);
     }
 
-    #[ignore = "not implemented"]
+    // #[ignore = "not implemented"]
     #[test]
     fn test_part2() {
         assert_eq!(part2(input()), 22);

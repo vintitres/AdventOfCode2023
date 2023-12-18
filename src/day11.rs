@@ -1,8 +1,8 @@
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 
 use itertools::Itertools;
 
-fn group_exp(exp: &Vec<usize>) -> BTreeMap<usize, usize> {
+fn group_exp(exp: &[usize]) -> BTreeMap<usize, usize> {
     let mut last = None;
     let mut gexp = BTreeMap::new();
     exp.iter().for_each(|&e| match last {
@@ -60,8 +60,8 @@ fn doit(input: &str, mul: u64) -> u64 {
     let max_y = galax[0].len();
     let mut exp_x = Vec::new();
     let mut exp_y = Vec::new();
-    for x in 0..max_x {
-        if galax[x].iter().all(|&g| g == '.') {
+    for (x, galax_x) in galax.iter().enumerate() {
+        if galax_x.iter().all(|&g| g == '.') {
             exp_x.push(x);
         }
     }
@@ -91,7 +91,7 @@ fn doit(input: &str, mul: u64) -> u64 {
                 .enumerate()
                 .skip(gi + 1)
                 .map(|(_gj, g2)| {
-                     /*dbg!((gi + 1, gj + 1, d));*/
+                    /*dbg!((gi + 1, gj + 1, d));*/
                     dist(g1, g2, &exp_x, &exp_y, mul)
                 })
                 .sum::<u64>()

@@ -1,7 +1,8 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque};
 
 use itertools::Itertools;
 
+#[derive(Debug)]
 enum Direction {
     Left,
     Right,
@@ -19,28 +20,54 @@ impl Direction {
             _ => panic!("unknown direction: {}", s),
         }
     }
-    pub fn next(&self, (x, y): (i32, i32)) -> (i32, i32) {
+    pub fn parse2(s: &str) -> Self {
+        match s {
+            "2" => Self::Left,
+            "0" => Self::Right,
+            "3" => Self::Up,
+            "1" => Self::Down,
+            _ => panic!("unknown direction: {}", s),
+        }
+    }
+    pub fn next(&self, p: (i32, i32)) -> (i32, i32) {
+        self.jump(p, 1)
+    }
+    pub fn jump(&self, (x, y): (i32, i32), length: usize) -> (i32, i32) {
+        let length = length as i32;
         match self {
-            Self::Left => (x, y - 1),
-            Self::Right => (x, y + 1),
-            Self::Up => (x - 1, y),
-            Self::Down => (x + 1, y),
+            Self::Left => (x, y - length),
+            Self::Right => (x, y + length),
+            Self::Up => (x - length, y),
+            Self::Down => (x + length, y),
         }
     }
 }
+#[derive(Debug)]
 struct Dig {
     direction: Direction,
     length: usize,
-    color: String,
 }
 
 impl Dig {
     pub fn parse(s: &str) -> Self {
-        let (d, l, c) = s.split_ascii_whitespace().collect_tuple().unwrap();
+        let (d, l, _c) = s.split_ascii_whitespace().collect_tuple().unwrap();
         Self {
             direction: Direction::parse(d),
             length: l.parse().unwrap(),
-            color: c.to_string(),
+        }
+    }
+
+    pub fn parse2(s: &str) -> Self {
+        let (_d, _l, c) = s.split_ascii_whitespace().collect_tuple().unwrap();
+        let (length_hex, direction_index) = c
+            .strip_prefix("(#")
+            .unwrap()
+            .strip_suffix(")")
+            .unwrap()
+            .split_at(5);
+        Self {
+            direction: Direction::parse2(direction_index),
+            length: usize::from_str_radix(length_hex, 16).unwrap(),
         }
     }
 }
@@ -86,16 +113,16 @@ impl Bounds {
 }
 
 pub fn part1(input: &str) -> usize {
-    let mut map = HashMap::new();
+    let mut map = HashSet::new();
     let mut bounds = Bounds::new();
     let mut p = (0, 0);
     bounds.add(p);
-    map.insert(p, "()".to_string());
+    map.insert(p);
     for dig in input.lines().map(Dig::parse) {
         for _ in 0..dig.length {
             p = dig.direction.next(p);
             bounds.add(p);
-            map.insert(p, dig.color.clone());
+            map.insert(p);
         }
     }
     bounds.extend1();
@@ -113,7 +140,7 @@ pub fn part1(input: &str) -> usize {
             Direction::Right,
         ] {
             let p = direction.next(p);
-            if bounds.is_in(p) && !map.contains_key(&p) && !ground.contains(&p) {
+            if bounds.is_in(p) && !map.contains(&p) && !ground.contains(&p) {
                 // dbg!(p);
                 // dbg!(&bounds);
                 q.push_back(p);
@@ -125,7 +152,12 @@ pub fn part1(input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> usize {
-    input.len()
+    let mut p = (0, 0);
+    for dig in input.lines().map(Dig::parse2) {
+        p = dig.direction.jump(p, dig.length);
+        dbg!(&dig, p);
+    }
+    0
 }
 
 #[cfg(test)]

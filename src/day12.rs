@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::collections::HashMap;
 
 struct HotSpringRow {
     row: Vec<char>,
@@ -35,40 +36,98 @@ impl HotSpringRow {
     }
 
     pub fn combinations(&self) -> usize {
-        Self::combinations_(self.row.split_first(), &self.conditions, 0)
+        Self::combinations_(
+            '.',
+            0,
+            0,
+            0,
+            &self.row,
+            &self.conditions,
+            &mut HashMap::new(),
+        )
     }
 
     fn combinations_(
-        row: Option<(&char, &[char])>,
-        conditions: &[usize],
+        row_head: char,
+        row_index: usize,
+        conditions_index: usize,
         springs_just_before: usize,
+        row: &[char],
+        conditions: &[usize],
+        mem: &mut HashMap<(char, usize, usize, usize), usize>,
     ) -> usize {
-        match row {
-            None => {
-                if conditions.len() <= 1 && *conditions.first().unwrap_or(&0) == springs_just_before
-                {
-                    1
-                } else {
-                    0
+        let k = (row_head, row_index, conditions_index, springs_just_before);
+        if !mem.contains_key(&k) {
+            let v = match row_head {
+                '$' => {
+                    if conditions_index >= conditions.len() - 1
+                        && *conditions.get(conditions_index).unwrap_or(&0) == springs_just_before
+                    {
+                        1
+                    } else {
+                        0
+                    }
                 }
-            }
-            Some(('.', row)) => {
-                if springs_just_before == 0 {
-                    Self::combinations_(row.split_first(), conditions, 0)
-                } else if *conditions.first().unwrap_or(&0) == springs_just_before {
-                    Self::combinations_(row.split_first(), &conditions[1..], 0)
-                } else {
-                    0
+                '.' => {
+                    if springs_just_before == 0 {
+                        Self::combinations_(
+                            *row.get(row_index).unwrap_or(&'$'),
+                            row_index + 1,
+                            conditions_index,
+                            0,
+                            row,
+                            conditions,
+                            mem,
+                        )
+                    } else if *conditions.get(conditions_index).unwrap_or(&0) == springs_just_before
+                    {
+                        Self::combinations_(
+                            *row.get(row_index).unwrap_or(&'$'),
+                            row_index + 1,
+                            conditions_index + 1,
+                            0,
+                            row,
+                            conditions,
+                            mem,
+                        )
+                    } else {
+                        0
+                    }
                 }
-            }
-            Some(('#', row)) => {
-                Self::combinations_(row.split_first(), conditions, springs_just_before + 1)
-            }
-            Some(('?', row)) => {
-                Self::combinations_(Some((&'#', row)), conditions, springs_just_before)
-                    + Self::combinations_(Some((&'.', row)), conditions, springs_just_before)
-            }
-            _ => panic!("!"),
+                '#' => Self::combinations_(
+                    *row.get(row_index).unwrap_or(&'$'),
+                    row_index + 1,
+                    conditions_index,
+                    springs_just_before + 1,
+                    row,
+                    conditions,
+                    mem,
+                ),
+                '?' => {
+                    Self::combinations_(
+                        '#',
+                        row_index,
+                        conditions_index,
+                        springs_just_before,
+                        row,
+                        conditions,
+                        mem,
+                    ) + Self::combinations_(
+                        '.',
+                        row_index,
+                        conditions_index,
+                        springs_just_before,
+                        row,
+                        conditions,
+                        mem,
+                    )
+                }
+                _ => panic!("!"),
+            };
+            mem.insert(k, v);
+            v
+        } else {
+            mem[&k]
         }
     }
 }
@@ -101,9 +160,9 @@ mod tests {
         assert_eq!(part1(input()), 8022);
     }
 
-    // #[ignore = "not implemented"]
+    #[ignore = "slow"]
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 22);
+        assert_eq!(part2(input()), 4968620679637);
     }
 }

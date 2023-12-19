@@ -35,14 +35,37 @@ impl HotSpringRow {
     }
 
     pub fn combinations(&self) -> usize {
-        Self::combinations_(self.row.split_first(), &self.conditions, 0)
+        let row_left = self.row.clone().into_iter().rev().scan(0, |sum, c| {
+            match c {
+                '?' | '#' => {
+                    *sum += 1;
+                }
+                '.' => (),
+                _ => panic!("a")
+            }
+            Some(*sum)
+        }).collect_vec().into_iter().rev().collect_vec();
+        let conditions_left = self.conditions.clone().into_iter().rev().scan(0, |sum, c| {
+            *sum += c;
+            Some(*sum)
+        }).collect_vec().into_iter().rev().collect_vec();
+        Self::combinations_(self.row.split_first(), row_left.split_first(), &self.conditions, &conditions_left, 0)
     }
 
     fn combinations_(
         row: Option<(&char, &[char])>,
+        row_left: Option<(&usize, &[usize])>,
         conditions: &[usize],
+        conditions_left: &[usize],
         springs_just_before: usize,
     ) -> usize {
+        if let Some((row_left, _)) = row_left {
+            if let Some(&conditions_left) = conditions_left.first() {
+                if row_left + springs_just_before < conditions_left {
+                    return 0;
+                }
+            }
+        }
         match row {
             None => {
                 if conditions.len() <= 1 && *conditions.first().unwrap_or(&0) == springs_just_before
@@ -54,19 +77,19 @@ impl HotSpringRow {
             }
             Some(('.', row)) => {
                 if springs_just_before == 0 {
-                    Self::combinations_(row.split_first(), conditions, 0)
+                    Self::combinations_(row.split_first(), row_left.unwrap().1.split_first(), conditions, conditions_left, 0)
                 } else if *conditions.first().unwrap_or(&0) == springs_just_before {
-                    Self::combinations_(row.split_first(), &conditions[1..], 0)
+                    Self::combinations_(row.split_first(), row_left.unwrap().1.split_first(), &conditions[1..], &conditions_left[1..], 0)
                 } else {
                     0
                 }
             }
             Some(('#', row)) => {
-                Self::combinations_(row.split_first(), conditions, springs_just_before + 1)
+                Self::combinations_(row.split_first(), row_left.unwrap().1.split_first(), conditions, conditions_left, springs_just_before + 1)
             }
             Some(('?', row)) => {
-                Self::combinations_(Some((&'#', row)), conditions, springs_just_before)
-                    + Self::combinations_(Some((&'.', row)), conditions, springs_just_before)
+                Self::combinations_(Some((&'#', row)), row_left, conditions, conditions_left, springs_just_before)
+                    + Self::combinations_(Some((&'.', row)), row_left, conditions, conditions_left, springs_just_before)
             }
             _ => panic!("!"),
         }

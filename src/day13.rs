@@ -30,10 +30,10 @@ fn find_mirrors(hashes: &[u64]) -> Vec<u64> {
     mirrors
 } 
 
-pub fn part1(input: &str) -> u64 {
-    input.split("\n\n").map(part1h).sum()
+fn doit(input: &str, smudges: usize) -> u64 {
+    input.split("\n\n").map(|s| doith(s, smudges)).sum()
 }
-fn part1h(input: &str) -> u64 {
+fn doith(input: &str, smudges: usize) -> u64 {
     let chars : Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
 
     let mut lines_hashes = Vec::new();
@@ -60,8 +60,11 @@ fn part1h(input: &str) -> u64 {
     100 * l + c
 }
 
-pub fn part2(input: &str) -> usize {
-    input.len()
+pub fn part1(input: &str) -> u64 {
+    doit(input, 0)
+}
+pub fn part2(input: &str) -> u64 {
+    doit(input, 1)
 }
 
 #[cfg(test)]

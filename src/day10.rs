@@ -11,7 +11,7 @@ fn mv((px, py): (usize, usize), d: char) -> (usize, usize) {
     }
 }
 
-fn get(pipes: &Vec<Vec<char>>, (px, py): (usize, usize)) -> char {
+fn get(pipes: &[Vec<char>], (px, py): (usize, usize)) -> char {
     if px >= pipes.len() || py >= pipes[px].len() {
         '.'
     } else {

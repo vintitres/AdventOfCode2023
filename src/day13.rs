@@ -63,8 +63,8 @@ fn doith(input: &str, smudges: usize) -> u64 {
     let mut column_hashes = Vec::new();
     for i in 0..chars[0].len() {
         let mut column = String::new();
-        for j in 0..chars.len() {
-            column.push(chars[j][i]);
+        for charsline in &chars {
+            column.push(charsline[i]);
         }
         column_hashes.push((calculate_hash(&column), column));
     }

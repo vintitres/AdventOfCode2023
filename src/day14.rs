@@ -29,9 +29,9 @@ fn transpose(platform: &mut [Vec<char>]) {
 }
 fn flip_rows(platform: &mut [Vec<char>]) {
     let row_len = platform[0].len();
-    for i in 0..platform.len() {
+    for row in platform {
         for j in 0..(row_len / 2) {
-            platform[i].swap(j, row_len - 1 - j);
+            row.swap(j, row_len - 1 - j);
         }
     }
 }
@@ -54,11 +54,12 @@ fn calc_load(platform: &[Vec<char>]) -> u64 {
 }
 
 fn print(platform: &[Vec<char>]) {
-    for i in 0..platform.len() {
-        let s: String = platform[i].clone().into_iter().collect();
+    for row in platform {
+        let s: String = row.iter().collect();
         dbg!(s);
     }
 }
+
 pub fn part1(input: &str) -> u64 {
     let mut platform: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
     tilt_up(&mut platform);

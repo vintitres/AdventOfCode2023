@@ -81,7 +81,7 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 fn calc_hash(platform: &[Vec<char>]) -> u64 {
     let mut s = String::new();
     for row in platform {
-        s.extend(row.into_iter());
+        s.extend(row.iter());
     }
     calculate_hash(&s)
 }

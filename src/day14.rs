@@ -1,6 +1,4 @@
-pub fn part1(input: &str) -> u64 {
-    let mut load = 0;
-    let mut platform: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+fn tilt_up(platform: &mut [Vec<char>]) {
     for i in 0..platform.len() {
         for j in 0..platform[0].len() {
             if platform[i][j] == 'O' {
@@ -9,14 +7,30 @@ pub fn part1(input: &str) -> u64 {
                         platform[k][j] = '.';
                         platform[k - 1][j] = 'O';
                     } else {
-                        load += (platform.len() - k) as u64;
                         break;
                     }
                 }
             }
         }
     }
+}
+
+fn calc_load(platform: &[Vec<char>]) -> u64 {
+    let mut load = 0;
+    for i in 0..platform.len() {
+        for j in 0..platform[0].len() {
+            if platform[i][j] == 'O' {
+                load += (platform.len() - i) as u64;
+            }
+        }
+    }
     load
+}
+
+pub fn part1(input: &str) -> u64 {
+    let mut platform: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+    tilt_up(&mut platform);
+    calc_load(&platform)
 }
 
 pub fn part2(input: &str) -> usize {

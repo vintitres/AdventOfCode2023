@@ -4,7 +4,12 @@ fn reindeer_hash(word: &str) -> usize {
 }
 
 pub fn part1(input: &str) -> u64 {
-    input.replace('\n', "").split(',').map(reindeer_hash).map(|h| h as u64).sum()
+    input
+        .replace('\n', "")
+        .split(',')
+        .map(reindeer_hash)
+        .map(|h| h as u64)
+        .sum()
 }
 
 enum LensInstrAction {
@@ -18,7 +23,7 @@ struct LensInstr {
 }
 
 impl LensInstr {
-    fn new(spec: &str) -> LensInstr{
+    fn new(spec: &str) -> LensInstr {
         if spec.ends_with('-') {
             LensInstr {
                 label: spec[0..(spec.len() - 1)].to_string(),
@@ -34,13 +39,13 @@ impl LensInstr {
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 struct Lens {
     power: usize,
     label: String,
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 struct LensBox {
     lenses: Vec<Lens>,
 }
@@ -63,7 +68,11 @@ impl LensBox {
         }
     }
     fn val(&self) -> u64 {
-        self.lenses.iter().enumerate().map(|(i,l)| (i + 1) as u64 * l.power as u64).sum()
+        self.lenses
+            .iter()
+            .enumerate()
+            .map(|(i, l)| (i + 1) as u64 * l.power as u64)
+            .sum()
     }
 }
 
@@ -73,15 +82,22 @@ pub fn part2(input: &str) -> u64 {
     for lens_instr in input.replace('\n', "").split(',').map(LensInstr::new) {
         match lens_instr.action {
             LensInstrAction::Add(power) => {
-                let lens = Lens { power, label: lens_instr.label };
+                let lens = Lens {
+                    power,
+                    label: lens_instr.label,
+                };
                 boxes[reindeer_hash(&lens.label.clone())].add(lens);
-            },
+            }
             LensInstrAction::Remove => {
                 boxes[reindeer_hash(&lens_instr.label.clone())].remove(lens_instr.label);
-            },
+            }
         }
-    };
-    boxes.iter().enumerate().map(|(i,b)| (i + 1) as u64 * b.val()).sum()
+    }
+    boxes
+        .iter()
+        .enumerate()
+        .map(|(i, b)| (i + 1) as u64 * b.val())
+        .sum()
 }
 
 #[cfg(test)]

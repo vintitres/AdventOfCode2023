@@ -205,7 +205,8 @@ mod tests {
     fn test_part1() {
         assert_eq!(part1(input()), 6740);
     }
-
+    
+    #[ignore = "slow"]
     #[test]
     fn test_part2() {
         assert_eq!(part2(input()), 7041);

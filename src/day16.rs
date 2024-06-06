@@ -130,8 +130,7 @@ impl Beam {
     }
 }
 
-pub fn part1(input: &str) -> usize {
-    let layout: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+fn calc_energy(layout: &[Vec<char>]) -> usize {
     let xlen = layout.len();
     let ylen = layout[0].len();
     let mut queue = VecDeque::<Beam>::new();
@@ -155,6 +154,16 @@ pub fn part1(input: &str) -> usize {
         }
     }
     HashSet::<(usize, usize)>::from_iter(visited.iter().map(|beam| (beam.x, beam.y))).len()
+}
+
+fn read_layout(input: &str) -> Vec<Vec<char>> {
+    input.lines().map(|l| l.chars().collect()).collect()
+}
+
+
+
+pub fn part1(input: &str) -> usize {
+    calc_energy(&read_layout(input))
 }
 
 pub fn part2(input: &str) -> usize {

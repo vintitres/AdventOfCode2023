@@ -146,14 +146,11 @@ pub fn part1(input: &str) -> usize {
     while !queue.is_empty() {
         let beam = queue.pop_front().unwrap();
         for b in beam.encounter(layout[beam.x][beam.y]) {
-            match b.next(xlen, ylen) {
-                Some(b) => {
-                    if !visited.contains(&b) {
-                        visited.insert(b);
-                        queue.push_back(b);
-                    }
+            if let Some(b) = b.next(xlen, ylen) {
+                if !visited.contains(&b) {
+                    visited.insert(b);
+                    queue.push_back(b);
                 }
-                None => {}
             }
         }
     }

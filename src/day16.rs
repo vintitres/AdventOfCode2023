@@ -171,11 +171,26 @@ pub fn part2(input: &str) -> usize {
     let mut max_energy = 0;
     for x in 0..xlen {
         for y in 0..ylen {
-
+            let mut directions = vec![];
+            if x == 0 {
+                directions.push(Direction::Down);
+            }
+            if y == 0 {
+                directions.push(Direction::Right);
+            }
+            if x == xlen - 1 {
+                directions.push(Direction::Up);
+            }
+            if y == ylen - 1 {
+                directions.push(Direction::Left);
+            }
+            for direction in directions {
+                max_energy =
+                    std::cmp::max(max_energy, calc_energy(&layout, Beam { x, y, direction }));
+            }
         }
     }
-
-    input.len()
+    max_energy
 }
 
 #[cfg(test)]
@@ -191,9 +206,8 @@ mod tests {
         assert_eq!(part1(input()), 6740);
     }
 
-    #[ignore = "not implemented"]
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 22);
+        assert_eq!(part2(input()), 7041);
     }
 }

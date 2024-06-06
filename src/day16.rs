@@ -130,16 +130,11 @@ impl Beam {
     }
 }
 
-fn calc_energy(layout: &[Vec<char>]) -> usize {
+fn calc_energy(layout: &[Vec<char>], start_beam: Beam) -> usize {
     let xlen = layout.len();
     let ylen = layout[0].len();
     let mut queue = VecDeque::<Beam>::new();
     let mut visited = HashSet::<Beam>::new();
-    let start_beam = Beam {
-        x: 0,
-        y: 0,
-        direction: Direction::Right,
-    };
     queue.push_front(start_beam);
     visited.insert(start_beam);
     while !queue.is_empty() {
@@ -160,13 +155,26 @@ fn read_layout(input: &str) -> Vec<Vec<char>> {
     input.lines().map(|l| l.chars().collect()).collect()
 }
 
-
-
 pub fn part1(input: &str) -> usize {
-    calc_energy(&read_layout(input))
+    let start_beam = Beam {
+        x: 0,
+        y: 0,
+        direction: Direction::Right,
+    };
+    calc_energy(&read_layout(input), start_beam)
 }
 
 pub fn part2(input: &str) -> usize {
+    let layout = read_layout(input);
+    let xlen = layout.len();
+    let ylen = layout[0].len();
+    let mut max_energy = 0;
+    for x in 0..xlen {
+        for y in 0..ylen {
+
+        }
+    }
+
     input.len()
 }
 

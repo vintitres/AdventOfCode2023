@@ -117,12 +117,10 @@ pub fn part1(input: &str) -> u64 {
         if x == xlen - 1 && y == ylen - 1 {
             return cost;
         }
-        for d in vec![
-            Direction::Up,
+        for d in [Direction::Up,
             Direction::Down,
             Direction::Left,
-            Direction::Right,
-        ] {
+            Direction::Right] {
             if d == direction && straight_steps == 2 {
                 continue;
             }

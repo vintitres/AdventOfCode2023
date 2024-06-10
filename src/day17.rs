@@ -1,6 +1,8 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 
+const MAX_STRAIGHT: usize = 3;
+
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, PartialOrd, Ord)]
 enum Direction {
     Up,
@@ -93,13 +95,6 @@ pub fn part1(input: &str) -> u64 {
         direction: Direction::Down,
     };
     queue.push(start);
-    let start = State {
-        cost: 0,
-        position: (0, 0),
-        straight_steps: 0,
-        direction: Direction::Right,
-    };
-    queue.push(start);
     while !queue.is_empty() {
         let State {
             cost,
@@ -108,20 +103,22 @@ pub fn part1(input: &str) -> u64 {
             direction,
         } = queue.pop().unwrap();
         let seen_key = (position, direction, straight_steps);
-        // if let Some(seen_cost) = seen.get(&seen_key) {
-        //     if *seen_cost < cost {
-        //         continue;
-        //     }
-        // }
+        if let Some(seen_cost) = seen.get(&seen_key) {
+            if *seen_cost < cost {
+                continue;
+            }
+        }
         let (x, y) = position;
         if x == xlen - 1 && y == ylen - 1 {
             return cost;
         }
-        for d in [Direction::Up,
+        for d in [
+            Direction::Up,
             Direction::Down,
             Direction::Left,
-            Direction::Right] {
-            if d == direction && straight_steps == 2 {
+            Direction::Right,
+        ] {
+            if d == direction && straight_steps == MAX_STRAIGHT - 1 {
                 continue;
             }
             match (d, direction) {
@@ -152,11 +149,10 @@ pub fn part1(input: &str) -> u64 {
                     straight_steps: straight,
                     direction: d,
                 });
-                // for s in 0..=straight {
-                let s = straight;
-                let seen_val = seen.entry((pos, d, s)).or_insert(cost);
-                *seen_val = std::cmp::min(cost, *seen_val);
-                // }
+                for s in straight..=MAX_STRAIGHT {
+                    let seen_val = seen.entry((pos, d, s)).or_insert(cost);
+                    *seen_val = std::cmp::min(cost, *seen_val);
+                }
             }
         }
     }

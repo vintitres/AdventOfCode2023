@@ -80,26 +80,12 @@ fn next(x: usize, y: usize, xlen: usize, ylen: usize, d: Direction) -> Option<(u
     }
 }
 
-fn print_path(layout: &[Vec<usize>], seen: &HashMap<((usize, usize), Direction, usize), u64>) {
-    let xlen = layout.len();
-    let ylen = layout[0].len();
-    let x = 0;
-    let y = 0;
-    let d = Direction::Down;
-    // let
-    // while (x != xlen || y != ylen) {
-    //     dbg!(x, y, layout[x][y]);
-    //     for
-    // }
-}
-
 pub fn part1(input: &str) -> u64 {
     let layout = read_layout(input);
     let xlen = layout.len();
     let ylen = layout[0].len();
     let mut seen = HashMap::<((usize, usize), Direction, usize), u64>::new();
     let mut queue = BinaryHeap::new();
-    // (total_cost, pos(x,y), straight_steps, direction)
     let start = State {
         cost: 0,
         position: (0, 0),
@@ -127,11 +113,9 @@ pub fn part1(input: &str) -> u64 {
         //         continue;
         //     }
         // }
-        // dbg!(cost);
         let (x, y) = position;
         if x == xlen - 1 && y == ylen - 1 {
-            print_path(&layout, &seen);
-            return cost; // - layout[x][y] as u64;
+            return cost;
         }
         for d in vec![
             Direction::Up,

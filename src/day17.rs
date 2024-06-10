@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -8,64 +9,172 @@ enum Direction {
     Right,
 }
 
+#[derive(Copy, Clone, Eq, PartialEq)]
+struct State {
+    cost: u64,
+    position: (usize, usize),
+    straight_steps: usize,
+    direction: Direction,
+}
+
+// The priority queue depends on `Ord`.
+// Explicitly implement the trait so the queue becomes a min-heap
+// instead of a max-heap.
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // Notice that the we flip the ordering on costs.
+        // In case of a tie we compare positions - this step is necessary
+        // to make implementations of `PartialEq` and `Ord` consistent.
+        other
+            .cost
+            .cmp(&self.cost)
+            .then_with(|| self.position.cmp(&other.position))
+            .then_with(|| self.straight_steps.cmp(&other.straight_steps))
+            .then_with(|| self.direction.cmp(&other.direction))
+    }
+}
+
+impl PartialOrd for State {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 fn read_layout(input: &str) -> Vec<Vec<usize>> {
-    input.lines().map(|l| l.chars().map(|c| c as usize - '0' as usize).collect()).collect()
+    input
+        .lines()
+        .map(|l| l.chars().map(|c| c as usize - '0' as usize).collect())
+        .collect()
 }
 
 fn next(x: usize, y: usize, xlen: usize, ylen: usize, d: Direction) -> Option<(usize, usize)> {
     match d {
-        Direction::Down => if x + 1 < xlen { Some((x + 1, y)) } else { None },
-        Direction::Up => if x > 0 { Some((x - 1, y)) } else { None },
-        Direction::Right => if y + 1 < ylen { Some((x, y + 1)) } else { None },
-        Direction::Left => if y > 0 { Some((x, y - 1)) } else { None },
+        Direction::Down => {
+            if x + 1 < xlen {
+                Some((x + 1, y))
+            } else {
+                None
+            }
+        }
+        Direction::Up => {
+            if x > 0 {
+                Some((x - 1, y))
+            } else {
+                None
+            }
+        }
+        Direction::Right => {
+            if y + 1 < ylen {
+                Some((x, y + 1))
+            } else {
+                None
+            }
+        }
+        Direction::Left => {
+            if y > 0 {
+                Some((x, y - 1))
+            } else {
+                None
+            }
+        }
     }
-
 }
 
-pub fn part1(input: &str) -> i64 {
+fn print_path(layout: &[Vec<usize>], seen: &HashMap<((usize, usize), Direction, usize), u64>) {
+    let xlen = layout.len();
+    let ylen = layout[0].len();
+    let x = 0;
+    let y = 0;
+    let d = Direction::Down;
+    // let
+    // while (x != xlen || y != ylen) {
+    //     dbg!(x, y, layout[x][y]);
+    //     for
+    // }
+}
+
+pub fn part1(input: &str) -> u64 {
     let layout = read_layout(input);
     let xlen = layout.len();
     let ylen = layout[0].len();
-    let mut seen = HashMap::<((usize, usize), Direction, usize), i64>::new();
+    let mut seen = HashMap::<((usize, usize), Direction, usize), u64>::new();
     let mut queue = BinaryHeap::new();
     // (total_cost, pos(x,y), straight_steps, direction)
-    let start = (0, (0, 0), 0, Direction::Right);
+    let start = State {
+        cost: 0,
+        position: (0, 0),
+        straight_steps: 0,
+        direction: Direction::Down,
+    };
+    queue.push(start);
+    let start = State {
+        cost: 0,
+        position: (0, 0),
+        straight_steps: 0,
+        direction: Direction::Right,
+    };
     queue.push(start);
     while !queue.is_empty() {
-        let (cost, (x, y), straight, direction) = queue.pop().unwrap();
-        let seen_key = ((x,y), direction, straight);
-        if let Some(seen_cost) = seen.get(&seen_key) {
-            if *seen_cost > cost {
-                continue;
-            }
-        }
+        let State {
+            cost,
+            position,
+            straight_steps,
+            direction,
+        } = queue.pop().unwrap();
+        let seen_key = (position, direction, straight_steps);
+        // if let Some(seen_cost) = seen.get(&seen_key) {
+        //     if *seen_cost < cost {
+        //         continue;
+        //     }
+        // }
         // dbg!(cost);
+        let (x, y) = position;
         if x == xlen - 1 && y == ylen - 1 {
-            return -cost-layout[x][y] as i64 ;
+            print_path(&layout, &seen);
+            return cost; // - layout[x][y] as u64;
         }
-        for d in vec![Direction::Up, Direction::Down, Direction::Left, Direction::Right] {
-            if d == direction && straight == 3 {
+        for d in vec![
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ] {
+            if d == direction && straight_steps == 2 {
                 continue;
             }
             match (d, direction) {
-                (Direction::Up, Direction::Down) | (Direction::Down, Direction::Up) | (Direction::Left, Direction::Right) | (Direction::Right, Direction::Left) => {continue;},
+                (Direction::Up, Direction::Down)
+                | (Direction::Down, Direction::Up)
+                | (Direction::Left, Direction::Right)
+                | (Direction::Right, Direction::Left) => {
+                    continue;
+                }
                 _ => {}
             }
             if let Some(pos) = next(x, y, xlen, ylen, d) {
-                let cost = cost - layout[pos.0][pos.1] as i64;
-                let straight = if d == direction { straight + 1 } else {0};
-                // check if seen pos+d+<=straight with lower cost already and skip if so
+                let cost = cost + layout[pos.0][pos.1] as u64;
+                let straight = if d == direction {
+                    straight_steps + 1
+                } else {
+                    0
+                };
                 let seen_key = (pos, d, straight);
                 if let Some(seen_cost) = seen.get(&seen_key) {
-                    if *seen_cost >= cost {
+                    if *seen_cost <= cost {
                         continue;
                     }
                 }
-                queue.push((cost, pos, straight, d));
-                for s in 0..=straight {
-                    let seen_val = seen.entry((pos,d,s)).or_insert(cost);
-                    *seen_val = std::cmp::max(cost, *seen_val);
-                }
+                queue.push(State {
+                    cost,
+                    position: pos,
+                    straight_steps: straight,
+                    direction: d,
+                });
+                // for s in 0..=straight {
+                let s = straight;
+                let seen_val = seen.entry((pos, d, s)).or_insert(cost);
+                *seen_val = std::cmp::min(cost, *seen_val);
+                // }
             }
         }
     }
@@ -81,14 +190,12 @@ mod tests {
     use super::*;
 
     fn input() -> &'static str {
-        "input"
-        // include_str!("../input/2023/day01.txt")
+        include_str!("../input/2023/day17.txt")
     }
 
-    #[ignore = "not implemented"]
     #[test]
     fn test_part1() {
-        assert_eq!(part1(input()), 11);
+        assert_eq!(part1(input()), 1001);
     }
 
     #[ignore = "not implemented"]

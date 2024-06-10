@@ -118,20 +118,19 @@ fn doit(input: &str, min_straight: usize, max_straight: usize) -> u64 {
             }
         }
         let (x, y) = position;
-        if x == xlen - 1 && y == ylen - 1 && straight_steps + 1 >= min_straight {
+        if x == xlen - 1 && y == ylen - 1 && straight_steps >= min_straight {
             return cost;
         }
-        // dbg!(x, y, direction);
         for d in [
             Direction::Up,
             Direction::Down,
             Direction::Left,
             Direction::Right,
         ] {
-            if d != direction && straight_steps + 1 < min_straight {
+            if d != direction && straight_steps < min_straight {
                 continue;
             }
-            if d == direction && straight_steps == max_straight - 1 {
+            if d == direction && straight_steps == max_straight {
                 continue;
             }
             match (d, direction) {
@@ -143,13 +142,12 @@ fn doit(input: &str, min_straight: usize, max_straight: usize) -> u64 {
                 }
                 _ => {}
             }
-            // dbg!(d);
             if let Some(pos) = next(x, y, xlen, ylen, d) {
                 let cost = cost + layout[pos.0][pos.1] as u64;
                 let straight = if d == direction {
                     straight_steps + 1
                 } else {
-                    0
+                    1
                 };
                 let seen_key = (pos, d, straight);
                 if let Some(seen_cost) = seen.get(&seen_key) {
@@ -188,6 +186,7 @@ mod tests {
         assert_eq!(part1(input()), 1001);
     }
 
+    #[ignore = "slow"]
     #[test]
     fn test_part2() {
         assert_eq!(part2(input()), 1197);

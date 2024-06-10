@@ -1,8 +1,6 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 
-const MAX_STRAIGHT: usize = 3;
-
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, PartialOrd, Ord)]
 enum Direction {
     Up,
@@ -83,11 +81,22 @@ fn next(x: usize, y: usize, xlen: usize, ylen: usize, d: Direction) -> Option<(u
 }
 
 pub fn part1(input: &str) -> u64 {
+    doit(input, 0, 3)
+}
+
+fn doit(input: &str, min_straight: usize, max_straight: usize) -> u64 {
     let layout = read_layout(input);
     let xlen = layout.len();
     let ylen = layout[0].len();
     let mut seen = HashMap::<((usize, usize), Direction, usize), u64>::new();
     let mut queue = BinaryHeap::new();
+    let start = State {
+        cost: 0,
+        position: (0, 0),
+        straight_steps: 0,
+        direction: Direction::Right,
+    };
+    queue.push(start);
     let start = State {
         cost: 0,
         position: (0, 0),
@@ -109,16 +118,20 @@ pub fn part1(input: &str) -> u64 {
             }
         }
         let (x, y) = position;
-        if x == xlen - 1 && y == ylen - 1 {
+        if x == xlen - 1 && y == ylen - 1 && straight_steps + 1 >= min_straight {
             return cost;
         }
+        // dbg!(x, y, direction);
         for d in [
             Direction::Up,
             Direction::Down,
             Direction::Left,
             Direction::Right,
         ] {
-            if d == direction && straight_steps == MAX_STRAIGHT - 1 {
+            if d != direction && straight_steps + 1 < min_straight {
+                continue;
+            }
+            if d == direction && straight_steps == max_straight - 1 {
                 continue;
             }
             match (d, direction) {
@@ -130,6 +143,7 @@ pub fn part1(input: &str) -> u64 {
                 }
                 _ => {}
             }
+            // dbg!(d);
             if let Some(pos) = next(x, y, xlen, ylen, d) {
                 let cost = cost + layout[pos.0][pos.1] as u64;
                 let straight = if d == direction {
@@ -149,18 +163,16 @@ pub fn part1(input: &str) -> u64 {
                     straight_steps: straight,
                     direction: d,
                 });
-                for s in straight..=MAX_STRAIGHT {
-                    let seen_val = seen.entry((pos, d, s)).or_insert(cost);
-                    *seen_val = std::cmp::min(cost, *seen_val);
-                }
+                let seen_val = seen.entry((pos, d, straight)).or_insert(cost);
+                *seen_val = std::cmp::min(cost, *seen_val);
             }
         }
     }
     unreachable!();
 }
 
-pub fn part2(input: &str) -> usize {
-    input.len()
+pub fn part2(input: &str) -> u64 {
+    doit(input, 4, 10)
 }
 
 #[cfg(test)]

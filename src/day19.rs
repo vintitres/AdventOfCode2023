@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, iter::repeat};
 
 use itertools::Itertools;
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(Hash, PartialEq, Eq, Clone)]
 enum Category {
     Extremely,
     Musical,
@@ -22,6 +22,7 @@ impl Category {
     }
 }
 
+#[derive(Clone)]
 enum Cmp {
     Greater,
     Lesser,
@@ -43,6 +44,7 @@ impl Cmp {
     }
 }
 
+#[derive(Clone)]
 enum Rule {
     Cmp(Category, Cmp, usize, RuleResult),
     Move(String),
@@ -83,6 +85,22 @@ impl Rule {
             }
         }
     }
+
+    fn eval(&self, range: PartRange) -> (PartRange, RuleResult, PartRange) {
+        match self {
+            Self::Accept => (range, RuleResult::Accept, PartRange::empty()),
+            Self::Reject => (PartRange::empty(), RuleResult::Reject, PartRange::empty()),
+            Self::Move(new_workflow) => (
+                range,
+                RuleResult::Move(new_workflow.clone()),
+                PartRange::empty(),
+            ),
+            Self::Cmp(category, cmp, val, result) => {
+                let (range1, range2) = range.split(category, cmp, val);
+                (range1, result.clone(), range2)
+            }
+        }
+    }
 }
 #[derive(Clone)]
 enum RuleResult {
@@ -101,6 +119,7 @@ impl RuleResult {
     }
 }
 
+#[derive(Clone)]
 struct Workflow {
     rules: Vec<Rule>,
 }
@@ -176,8 +195,98 @@ pub fn part1(input: &str) -> usize {
         .sum()
 }
 
+#[derive(Clone)]
+struct PartRange {
+    ranges: HashMap<Category, (usize, usize)>,
+}
+
+impl PartRange {
+    fn new() -> PartRange {
+        PartRange {
+            ranges: HashMap::from_iter(
+                [
+                    Category::Extremely,
+                    Category::Musical,
+                    Category::Aerodynamic,
+                    Category::Shiny,
+                ]
+                .into_iter()
+                .zip(repeat((1, 4001))),
+            ),
+        }
+    }
+
+    fn empty() -> PartRange {
+        PartRange {
+            ranges: HashMap::from_iter(
+                [
+                    Category::Extremely,
+                    Category::Musical,
+                    Category::Aerodynamic,
+                    Category::Shiny,
+                ]
+                .into_iter()
+                .zip(repeat((1, 1))),
+            ),
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.count() == 0
+    }
+
+    fn count(&self) -> usize {
+        self.ranges
+            .values()
+            .map(|r| if r.1 < r.0 { 0 } else { r.1 - r.0 })
+            .product()
+    }
+
+    fn split(&self, category: &Category, cmp: &Cmp, val: &usize) -> (PartRange, PartRange) {
+        let mut range1 = self.clone();
+        let mut range2 = self.clone();
+
+        let (begin, end) = self.ranges[category];
+
+        let (r1, r2) = match cmp {
+            Cmp::Greater => ((val + 1, end), (begin, val + 1)),
+            Cmp::Lesser => ((begin, *val), (*val, end)),
+        };
+        *range1.ranges.get_mut(category).unwrap() = r1;
+        *range2.ranges.get_mut(category).unwrap() = r2;
+        (range1, range2)
+    }
+}
+
+fn go(workflow: &str, workflows: &HashMap<String, Workflow>, range: PartRange) -> usize {
+    if range.is_empty() {
+        return 0;
+    }
+    let workflow = workflows[&workflow.to_string()].clone();
+    let mut range = range.clone();
+    let mut sum = 0;
+    for rule in workflow.rules {
+        let (pass_range, pass_result, fail_range) = rule.eval(range);
+        sum += match pass_result {
+            RuleResult::Accept => pass_range.count(),
+            RuleResult::Reject => 0,
+            RuleResult::Move(new_workflow) => go(&new_workflow, workflows, pass_range),
+        };
+        if fail_range.is_empty() {
+            break;
+        }
+        range = fail_range;
+    }
+    sum
+}
+
 pub fn part2(input: &str) -> usize {
-    input.len()
+    let workflows: HashMap<String, Workflow> = input
+        .lines()
+        .take_while(|l| !l.is_empty())
+        .map(Workflow::read)
+        .collect();
+    go("in", &workflows, PartRange::new())
 }
 
 #[cfg(test)]
@@ -193,9 +302,8 @@ mod tests {
         assert_eq!(part1(input()), 362930);
     }
 
-    #[ignore = "not implemented"]
     #[test]
     fn test_part2() {
-        assert_eq!(part2(input()), 22);
+        assert_eq!(part2(input()), 116365820987729);
     }
 }

@@ -1,3 +1,28 @@
+enum Pulse {
+    Low,
+    High,
+}
+
+type Destinations = Vec<String>;
+
+enum Module {
+    Broadcast(BroadcastModule),
+    FlipFlop(FlipFlopModule),
+    Conjunction(ConjunctionModule),
+}
+
+struct BroadcastModule {
+    destinations: Destinations,
+}
+
+struct ConjunctionModule {
+    destinations: Destinations,
+}
+
+struct FlipFlopModule {
+    destinations: Destinations,
+}
+
 pub fn part1(input: &str) -> usize {
     input.len()
 }

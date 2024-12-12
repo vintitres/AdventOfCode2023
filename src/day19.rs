@@ -117,11 +117,8 @@ impl Workflow {
     }
     fn run(&self, part: &Part) -> RuleResult {
         for rule in &self.rules {
-            match rule.run(part) {
-                Some(result) => {
-                    return result;
-                }
-                None => (),
+            if let Some(result) = rule.run(part) {
+                return result;
             }
         }
         unreachable!("Last rule should yield result");

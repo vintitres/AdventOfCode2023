@@ -90,9 +90,8 @@ fn doit(input: &str, jokers: bool) -> u64 {
         .rev()
         .enumerate()
         .map(|(rank, (_hand, bet))| (rank as u64 + 1) * bet)
-        .map(|v| {
+        .inspect(|&v| {
             dbg!(v);
-            v
         })
         .sum()
 }
